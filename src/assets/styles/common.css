@@ -1,0 +1,28 @@
+/* 适配 vivo Watch 3 — 圆形表盘 466x466 */
+.theme-primary { color: #ff4d6f; }
+.theme-bg { background-color: #0a0a0f; }
+
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #0a0a0f;
+  flex-direction: column;
+  /* 圆形表盘内缩 */
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 18px;
+  padding-bottom: 18px;
+  box-sizing: border-box;
+}
+
+/* 文本截断 */
+.text-ellipsis { text-overflow: ellipsis; overflow: hidden; }
+
+/* 空状态 */
+.empty-state {
+  flex: 1; align-items: center; justify-content: center; flex-direction: column;
+}
+.empty-text { font-size: 14px; color: #666666; margin-top: 10px; }
+
+/* 加载 */
+.loading-text { font-size: 13px; color: #999999; }

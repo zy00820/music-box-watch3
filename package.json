@@ -1,0 +1,20 @@
+{
+  "name": "music-box",
+  "version": "1.0.0",
+  "description": "全能音乐盒 - 适配 iQOO Watch GT 2 (BlueOS 3)",
+  "main": "src/app.ux",
+  "scripts": {
+    "build": "blueos build",
+    "watch": "blueos watch"
+  },
+  "keywords": [
+    "music",
+    "blueos",
+    "watch"
+  ],
+  "author": "MusicBox",
+  "license": "MIT",
+  "devDependencies": {
+    "hap-toolkit": "^2.1.1"
+  }
+}

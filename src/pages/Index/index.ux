@@ -1,0 +1,557 @@
+<template>
+  <div class="container">
+    <!-- 顶部标题栏 -->
+    <div class="header">
+      <div class="header-left">
+        <text class="app-name">音乐盒</text>
+      </div>
+      <div class="header-right">
+        <div class="mode-btn" onclick="toggleMode">
+          <text class="mode-text">{{ playModeText }}</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- 专辑封面区域 -->
+    <div class="cover-area">
+      <div class="cover-wrapper">
+        <image class="cover-img" src="{{ coverUrl }}" if="{{ coverUrl }}" />
+        <div class="cover-placeholder" if="{{ !coverUrl }}">
+          <text class="placeholder-icon">♪</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- 歌曲信息 -->
+    <div class="song-info">
+      <text class="song-name text-ellipsis">{{ songName }}</text>
+      <text class="song-artist text-ellipsis">{{ songArtist }}</text>
+    </div>
+
+    <!-- 进度条 -->
+    <div class="progress-area">
+      <text class="time-text">{{ currentTimeText }}</text>
+      <div class="progress-bar" onclick="onProgressClick">
+        <div class="progress-bg"></div>
+        <div class="progress-fill" style="width: {{ progressPercent }}%;"></div>
+        <div class="progress-dot" style="left: {{ progressPercent }}%;"></div>
+      </div>
+      <text class="time-text">{{ durationText }}</text>
+    </div>
+
+    <!-- 播放控制按钮 -->
+    <div class="controls">
+      <div class="control-btn" onclick="goPrev">
+        <text class="control-icon">⏮</text>
+      </div>
+      <div class="play-btn" onclick="togglePlay">
+        <text class="play-icon">{{ isPlaying ? '⏸' : '▶' }}</text>
+      </div>
+      <div class="control-btn" onclick="goNext">
+        <text class="control-icon">⏭</text>
+      </div>
+    </div>
+
+    <!-- 底部功能导航 -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goSearch">
+        <text class="nav-icon">🔍</text>
+        <text class="nav-label">搜索</text>
+      </div>
+      <div class="nav-item" onclick="goPlaylist">
+        <text class="nav-icon">📋</text>
+        <text class="nav-label">列表</text>
+      </div>
+      <div class="nav-item" onclick="goLyric">
+        <text class="nav-icon">📝</text>
+        <text class="nav-label">歌词</text>
+      </div>
+      <div class="nav-item" onclick="loadHotSongs">
+        <text class="nav-icon">🔥</text>
+        <text class="nav-label">热门</text>
+      </div>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="toast" if="{{ showToast }}">
+      <text class="toast-text">{{ toastMsg }}</text>
+    </div>
+  </div>
+</template>
+
+<style>
+@import "../../assets/styles/common.css";
+
+.container {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  background-color: #0a0a0f;
+  flex-direction: column;
+}
+
+/* 顶部标题栏 */
+.header {
+  width: 100%;
+  height: 48px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.app-name {
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.mode-btn {
+  width: 58px;
+  height: 28px;
+  border-radius: 14px;
+  background-color: rgba(255, 255, 255, 0.1);
+  align-items: center;
+  justify-content: center;
+}
+
+.mode-text {
+  font-size: 12px;
+  color: #ff4d6f;
+}
+
+/* 专辑封面 */
+.cover-area {
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
+.cover-wrapper {
+  width: 200px;
+  height: 200px;
+  border-radius: 100px;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  background-color: #1a1a24;
+}
+
+.cover-img {
+  width: 180px;
+  height: 180px;
+  border-radius: 90px;
+}
+
+.cover-placeholder {
+  width: 180px;
+  height: 180px;
+  border-radius: 90px;
+  align-items: center;
+  justify-content: center;
+  background-color: #22222e;
+}
+
+.placeholder-icon {
+  font-size: 72px;
+  color: #44444f;
+}
+
+/* 歌曲信息 */
+.song-info {
+  width: 100%;
+  align-items: center;
+  padding-left: 24px;
+  padding-right: 24px;
+  margin-bottom: 12px;
+}
+
+.song-name {
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.song-artist {
+  font-size: 14px;
+  color: #999999;
+  text-align: center;
+  width: 100%;
+}
+
+/* 进度条 */
+.progress-area {
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 16px;
+}
+
+.time-text {
+  font-size: 11px;
+  color: #888888;
+  width: 36px;
+  text-align: center;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 24px;
+  margin-left: 8px;
+  margin-right: 8px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.progress-bg {
+  width: 100%;
+  height: 4px;
+  background-color: #2a2a36;
+  border-radius: 2px;
+}
+
+.progress-fill {
+  height: 4px;
+  background-color: #ff4d6f;
+  border-radius: 2px;
+  position: absolute;
+  left: 0;
+  top: 10px;
+}
+
+.progress-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #ff4d6f;
+  position: absolute;
+  top: 7px;
+  margin-left: -5px;
+}
+
+/* 播放控制 */
+.controls {
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  padding-left: 40px;
+  padding-right: 40px;
+  margin-bottom: 16px;
+}
+
+.control-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-icon {
+  font-size: 24px;
+  color: #ffffff;
+}
+
+.play-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+  background-color: #ff4d6f;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-icon {
+  font-size: 28px;
+  color: #ffffff;
+}
+
+/* 底部导航 */
+
+.bottom-nav {
+  margin-top: auto;
+  width: 100%;
+  height: 64px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-top-width: 1px;
+  border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.nav-icon {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+.nav-label {
+  font-size: 10px;
+  color: #888888;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-radius: 16px;
+}
+
+.toast-text {
+  font-size: 13px;
+  color: #ffffff;
+}
+</style>
+
+<script>
+import player from '../../js/player.js'
+import { formatTime, getNewSongs } from '../../js/musicApi.js'
+import auth from '../../js/auth.js'
+import router from '@blueos.app.appmanager.router'
+
+export default {
+  data: {
+    songName: '未播放',
+    songArtist: '点击搜索开始',
+    coverUrl: '',
+    isPlaying: false,
+    currentTime: 0,
+    duration: 0,
+    currentTimeText: '00:00',
+    durationText: '00:00',
+    progressPercent: 0,
+    playMode: 'list',
+    playModeText: '列表',
+    showToast: false,
+    toastMsg: ''
+  },
+
+  onInit() {
+    auth.initAuth()
+    if (!auth.isActivated()) {
+      router.replace({ uri: '/pages/Activate' })
+      return
+    }
+    this.bindPlayerEvents()
+  },
+
+  onShow() {
+    // 页面显示时同步状态
+    if (player.currentSong) {
+      this.syncSongInfo(player.currentSong)
+    }
+    this.isPlaying = player.isPlaying
+    this.playMode = player.playMode
+    this.updateModeText()
+  },
+
+  /**
+   * 绑定播放器事件
+   */
+  bindPlayerEvents() {
+    player.on('songChange', (song) => {
+      this.syncSongInfo(song)
+    })
+
+    player.on('play', () => {
+      this.isPlaying = true
+    })
+
+    player.on('pause', () => {
+      this.isPlaying = false
+    })
+
+    player.on('progress', (data) => {
+      this.currentTime = data.currentTime
+      this.duration = data.duration
+      this.currentTimeText = formatTime(data.currentTime)
+      this.durationText = formatTime(data.duration)
+      if (data.duration > 0) {
+        this.progressPercent = (data.currentTime / data.duration) * 100
+      }
+    })
+
+    player.on('modeChange', (mode) => {
+      this.playMode = mode
+      this.updateModeText()
+    })
+
+    player.on('error', (err) => {
+      this.showToastMsg(err.msg || '播放出错')
+    })
+  },
+
+  /**
+   * 同步歌曲信息到UI
+   */
+  syncSongInfo(song) {
+    if (!song) {
+      this.songName = '未播放'
+      this.songArtist = '点击搜索开始'
+      this.coverUrl = ''
+      return
+    }
+    this.songName = song.name || '未知歌曲'
+    const artists = song.artists || song.ar || []
+    if (Array.isArray(artists)) {
+      this.songArtist = artists.map(a => a.name).join(' / ')
+    } else {
+      this.songArtist = song.artist || ''
+    }
+    // 专辑封面
+    const album = song.album || song.al || {}
+    this.coverUrl = album.picUrl || song.picUrl || album.img80x80 || ''
+  },
+
+  /**
+   * 更新播放模式文字
+   */
+  updateModeText() {
+    const modeMap = {
+      list: '列表',
+      single: '单曲',
+      random: '随机'
+    }
+    this.playModeText = modeMap[this.playMode] || '列表'
+  },
+
+  /**
+   * 切换播放/暂停
+   */
+  togglePlay() {
+    if (player.playlist.length === 0) {
+      this.showToastMsg('请先搜索或添加歌曲')
+      return
+    }
+    player.togglePlay()
+  },
+
+  /**
+   * 上一首
+   */
+  goPrev() {
+    if (player.playlist.length === 0) {
+      this.showToastMsg('播放列表为空')
+      return
+    }
+    player.prev()
+  },
+
+  /**
+   * 下一首
+   */
+  goNext() {
+    if (player.playlist.length === 0) {
+      this.showToastMsg('播放列表为空')
+      return
+    }
+    player.next()
+  },
+
+  /**
+   * 切换播放模式
+   */
+  toggleMode() {
+    const mode = player.togglePlayMode()
+    this.playMode = mode
+    this.updateModeText()
+    const modeText = { list: '列表循环', single: '单曲循环', random: '随机播放' }
+    this.showToastMsg(modeText[mode])
+  },
+
+  /**
+   * 进度条点击跳转
+   */
+  onProgressClick(e) {
+    if (this.duration <= 0) return
+    // 计算点击位置比例
+    const percent = (e.nativeEvent.pageX - e.target.offsetLeft) / e.target.offsetWidth
+    const targetTime = percent * this.duration
+    player.seek(targetTime)
+  },
+
+  /**
+   * 跳转搜索页
+   */
+  goSearch() {
+    router.push({ uri: '/Search' })
+  },
+
+  /**
+   * 跳转播放列表页
+   */
+  goPlaylist() {
+    router.push({ uri: '/Playlist' })
+  },
+
+  /**
+   * 跳转歌词页
+   */
+  goLyric() {
+    router.push({ uri: '/Lyric' })
+  },
+
+  /**
+   * 加载热门歌曲
+   */
+  loadHotSongs() {
+    this.showToastMsg('正在加载热门歌曲...')
+    getNewSongs(0).then(res => {
+      if (res && res.data && res.data.length > 0) {
+        const songs = res.data.map(item => ({
+          id: item.id,
+          name: item.name,
+          artists: item.artists,
+          album: item.album
+        }))
+        player.setPlaylist(songs, 0)
+        player.playByIndex(0)
+        this.showToastMsg('已加载热门歌曲')
+      } else {
+        this.showToastMsg('加载失败，请稍后重试')
+      }
+    }).catch(err => {
+      this.showToastMsg('网络错误')
+    })
+  },
+
+  /**
+   * 显示提示信息
+   */
+  showToastMsg(msg) {
+    this.toastMsg = msg
+    this.showToast = true
+    setTimeout(() => {
+      this.showToast = false
+    }, 2000)
+  }
+}
+</script>

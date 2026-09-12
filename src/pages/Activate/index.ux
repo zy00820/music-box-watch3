@@ -1,0 +1,415 @@
+<template>
+  <div class="container">
+    <!-- 顶部 -->
+    <div class="header">
+      <text class="header-title">音乐盒激活</text>
+      <div class="header-status">
+        <text class="status-text {{ activated ? 'status-ok' : 'status-lock' }}">
+          {{ activated ? '✓ 已激活' : '未激活' }}
+        </text>
+      </div>
+    </div>
+
+    <!-- 已激活状态 -->
+    <div class="activated-panel" if="{{ activated }}">
+      <text class="success-icon">✓</text>
+      <text class="success-title">感谢支持！</text>
+      <text class="success-sub">音乐盒已成功激活，尽情使用吧</text>
+      <div class="enter-btn" onclick="enterApp">
+        <text class="enter-btn-text">进入应用</text>
+      </div>
+    </div>
+
+    <!-- 未激活状态 -->
+    <div class="activate-panel" if="{{ !activated }}">
+      <!-- 激活码输入 -->
+      <div class="form-section">
+        <text class="section-label">输入激活码</text>
+        <div class="code-input-wrap">
+          <input
+            class="code-input"
+            value="{{ codeInput }}"
+            placeholder="请输入激活码"
+            onchange="onCodeChange"
+          />
+        </div>
+        <div class="activate-btn" onclick="doActivate">
+          <text class="activate-btn-text">立即激活</text>
+        </div>
+        <text class="error-tip" if="{{ errorMsg }}">{{ errorMsg }}</text>
+      </div>
+
+      <!-- 支付说明 -->
+      <div class="pay-section">
+        <text class="pay-title">获取激活码</text>
+        <text class="pay-price">￥ 3.00 / 永久授权</text>
+
+        <div class="pay-qr-wrap">
+          <image class="pay-qr" src="{{ qrUrl }}" if="{{ qrUrl }}" />
+          <div class="pay-qr-placeholder" if="{{ !qrUrl }}">
+            <text class="qr-placeholder-text">微信扫码付款</text>
+          </div>
+        </div>
+
+        <div class="pay-steps">
+          <text class="step-text">1. 微信扫码付款 3 元</text>
+          <text class="step-text">2. 付款后保留支付截图</text>
+          <text class="step-text">3. 发送支付截图到邮箱</text>
+          <text class="step-text email-text">zy291817@outlook.com</text>
+          <text class="step-text">4. 查收邮箱获取激活码</text>
+        </div>
+
+        <div class="divider"></div>
+
+        <text class="demo-text">演示激活码：</text>
+        <text class="demo-code-inline">b33000</text>
+        <div class="quick-fill" onclick="fillDemoCode">
+          <text class="quick-fill-text">填入演示码</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" if="{{ showToast }}">
+      <text class="toast-text">{{ toastMsg }}</text>
+    </div>
+  </div>
+</template>
+
+<style>
+@import "../../assets/styles/common.css";
+
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #0a0a0f;
+  flex-direction: column;
+}
+
+.header {
+  width: 100%;
+  height: 48px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.header-title {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.status-text {
+  font-size: 12px;
+  color: #ff4d6f;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-radius: 10px;
+  background-color: rgba(255, 77, 111, 0.15);
+}
+
+.status-ok {
+  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.15);
+}
+
+/* ===== 已激活面板 ===== */
+.activated-panel {
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.success-icon {
+  font-size: 64px;
+  color: #4caf50;
+  margin-bottom: 12px;
+}
+
+.success-title {
+  font-size: 20px;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.success-sub {
+  font-size: 13px;
+  color: #888888;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.enter-btn {
+  width: 200px;
+  height: 44px;
+  background-color: #ff4d6f;
+  border-radius: 22px;
+  align-items: center;
+  justify-content: center;
+}
+
+.enter-btn-text {
+  font-size: 15px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* ===== 未激活面板 ===== */
+.activate-panel {
+  flex: 1;
+  flex-direction: column;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 8px;
+}
+
+.form-section {
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.section-label {
+  font-size: 12px;
+  color: #888888;
+  margin-bottom: 8px;
+}
+
+.code-input-wrap {
+  width: 100%;
+  height: 44px;
+  background-color: #1a1a24;
+  border-radius: 8px;
+  padding-left: 12px;
+  padding-right: 12px;
+  margin-bottom: 10px;
+}
+
+.code-input {
+  width: 100%;
+  height: 44px;
+  font-size: 16px;
+  color: #ffffff;
+  background-color: transparent;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.activate-btn {
+  width: 100%;
+  height: 44px;
+  background-color: #ff4d6f;
+  border-radius: 22px;
+  align-items: center;
+  justify-content: center;
+}
+
+.activate-btn-text {
+  font-size: 15px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.error-tip {
+  font-size: 12px;
+  color: #ff6b6b;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* ===== 支付说明区 ===== */
+.pay-section {
+  flex: 1;
+  flex-direction: column;
+  background-color: #12121a;
+  border-radius: 12px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.pay-title {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 500;
+  text-align: center;
+}
+
+.pay-price {
+  font-size: 22px;
+  color: #ff4d6f;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.pay-qr-wrap {
+  width: 120px;
+  height: 120px;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin-bottom: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pay-qr {
+  width: 120px;
+  height: 120px;
+}
+
+.pay-qr-placeholder {
+  width: 120px;
+  height: 120px;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-placeholder-text {
+  font-size: 11px;
+  color: #666666;
+}
+
+.pay-steps {
+  flex-direction: column;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.step-text {
+  font-size: 11px;
+  color: #bbbbbb;
+  line-height: 18px;
+}
+
+.email-text {
+  color: #ff4d6f;
+  font-weight: 500;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.08);
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.demo-text {
+  font-size: 11px;
+  color: #888888;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.demo-code {
+  color: #ff4d6f;
+  font-weight: 500;
+}
+
+.quick-fill {
+  width: 100%;
+  height: 30px;
+  border-radius: 15px;
+  background-color: rgba(255, 77, 111, 0.15);
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-fill-text {
+  font-size: 12px;
+  color: #ff4d6f;
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.85);
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-radius: 16px;
+}
+
+.toast-text {
+  font-size: 13px;
+  color: #ffffff;
+}
+</style>
+
+<script>
+import auth from '../../js/auth.js'
+import router from '@blueos.app.appmanager.router'
+
+export default {
+  data: {
+    activated: false,
+    codeInput: '',
+    errorMsg: '',
+    showToast: false,
+    toastMsg: '',
+    qrUrl: '/assets/images/pay-qr.jpg'
+  },
+
+  onInit() {
+    auth.initAuth()
+    this.activated = auth.isActivated()
+  },
+
+  onShow() {
+    this.activated = auth.isActivated()
+  },
+
+  onCodeChange(e) {
+    this.codeInput = e.value
+    this.errorMsg = ''
+  },
+
+  doActivate() {
+    const result = auth.activate(this.codeInput)
+    if (result.success) {
+      this.activated = true
+      this.showToastMsg(result.msg)
+      setTimeout(() => {
+        this.enterApp()
+      }, 600)
+    } else {
+      this.errorMsg = result.msg
+      this.showToastMsg(result.msg)
+    }
+  },
+
+  fillDemoCode() {
+    this.codeInput = 'b33000'
+    this.errorMsg = ''
+    this.showToastMsg('已填入演示激活码')
+  },
+
+  enterApp() {
+    router.replace({ uri: '/pages/Index' })
+  },
+
+  showToastMsg(msg) {
+    this.toastMsg = msg
+    this.showToast = true
+    setTimeout(() => {
+      this.showToast = false
+    }, 2000)
+  }
+}
+</script>

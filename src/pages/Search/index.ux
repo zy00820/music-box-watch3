@@ -1,0 +1,437 @@
+<template>
+  <div class="container">
+    <!-- 搜索栏 -->
+    <div class="search-header">
+      <div class="search-box">
+        <text class="search-icon">🔍</text>
+        <input
+          class="search-input"
+          value="{{ keyword }}"
+          placeholder="搜索歌曲、歌手"
+          onchange="onInputChange"
+        />
+        <div class="clear-btn" if="{{ keyword }}" onclick="clearInput">
+          <text class="clear-text">✕</text>
+        </div>
+      </div>
+      <div class="cancel-btn" onclick="goBack">
+        <text class="cancel-text">返回</text>
+      </div>
+    </div>
+
+    <!-- 搜索按钮 -->
+    <div class="search-action" if="{{ keyword && !hasSearched }}">
+      <div class="search-btn" onclick="onSearch">
+        <text class="search-btn-text">搜索「{{ keyword }}」</text>
+      </div>
+    </div>
+
+    <!-- 搜索结果列表 -->
+    <div class="result-list" if="{{ hasSearched && songList.length > 0 }}">
+      <list class="list-container">
+        <list-item type="song" for="{{ songList }}" onclick="playSong($idx)">
+          <div class="song-item">
+            <div class="song-index">
+              <text class="index-text">{{ $idx + 1 }}</text>
+            </div>
+            <div class="song-detail">
+              <text class="song-name text-ellipsis">{{ $item.name }}</text>
+              <text class="song-artist text-ellipsis">{{ getArtistText($item) }}</text>
+            </div>
+            <div class="song-action" onclick="addToPlaylist($idx, $event)">
+              <text class="action-icon">+</text>
+            </div>
+          </div>
+        </list-item>
+      </list>
+      <div class="play-all" onclick="playAll">
+        <text class="play-all-text">▶ 播放全部 ({{ songList.length }})</text>
+      </div>
+    </div>
+
+    <!-- 搜索中 -->
+    <div class="loading-state" if="{{ isLoading }}">
+      <text class="loading-text">搜索中...</text>
+    </div>
+
+    <!-- 空状态 -->
+    <div class="empty-state" if="{{ hasSearched && !isLoading && songList.length === 0 }}">
+      <text class="empty-icon">🎵</text>
+      <text class="empty-text">未找到相关歌曲</text>
+    </div>
+
+    <!-- 默认推荐 -->
+    <div class="recommend-area" if="{{ !keyword && !hasSearched }}">
+      <text class="recommend-title">热门搜索</text>
+      <div class="tags">
+        <div class="tag" for="{{ hotTags }}" onclick="quickSearch($item)">
+          <text class="tag-text">{{ $item }}</text>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" if="{{ showToast }}">
+      <text class="toast-text">{{ toastMsg }}</text>
+    </div>
+  </div>
+</template>
+
+<style>
+@import "../../assets/styles/common.css";
+
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #0a0a0f;
+  flex-direction: column;
+}
+
+/* 搜索栏 */
+.search-header {
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+
+.search-box {
+  flex: 1;
+  height: 36px;
+  background-color: #1a1a24;
+  border-radius: 18px;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.search-icon {
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+.search-input {
+  flex: 1;
+  height: 36px;
+  font-size: 14px;
+  color: #ffffff;
+  background-color: transparent;
+}
+
+.clear-btn {
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-text {
+  font-size: 12px;
+  color: #888888;
+}
+
+.cancel-btn {
+  margin-left: 8px;
+  padding-left: 8px;
+  padding-right: 4px;
+}
+
+.cancel-text {
+  font-size: 14px;
+  color: #ff4d6f;
+}
+
+/* 搜索按钮 */
+.search-action {
+  width: 100%;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.search-btn {
+  width: 100%;
+  height: 40px;
+  background-color: #ff4d6f;
+  border-radius: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-btn-text {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* 结果列表 */
+.result-list {
+  flex: 1;
+  width: 100%;
+  flex-direction: column;
+}
+
+.list-container {
+  flex: 1;
+  width: 100%;
+}
+
+.song-item {
+  width: 100%;
+  height: 60px;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-bottom-width: 1px;
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.song-index {
+  width: 28px;
+  align-items: center;
+}
+
+.index-text {
+  font-size: 13px;
+  color: #666666;
+}
+
+.song-detail {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.song-name {
+  font-size: 14px;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.song-artist {
+  font-size: 11px;
+  color: #888888;
+}
+
+.song-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 77, 111, 0.15);
+}
+
+.action-icon {
+  font-size: 18px;
+  color: #ff4d6f;
+  font-weight: 500;
+}
+
+.play-all {
+  width: 100%;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 77, 111, 0.1);
+}
+
+.play-all-text {
+  font-size: 14px;
+  color: #ff4d6f;
+  font-weight: 500;
+}
+
+/* 推荐区 */
+.recommend-area {
+  flex: 1;
+  width: 100%;
+  padding: 16px;
+}
+
+.recommend-title {
+  font-size: 14px;
+  color: #888888;
+  margin-bottom: 12px;
+}
+
+.tags {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  background-color: #1a1a24;
+  border-radius: 16px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.tag-text {
+  font-size: 13px;
+  color: #cccccc;
+}
+
+/* 加载/空状态 */
+.loading-state, .empty-state {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: #888888;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #666666;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-radius: 16px;
+}
+
+.toast-text {
+  font-size: 13px;
+  color: #ffffff;
+}
+</style>
+
+<script>
+import player from '../../js/player.js'
+import { searchSongs } from '../../js/musicApi.js'
+import router from '@blueos.app.appmanager.router'
+
+export default {
+  data: {
+    keyword: '',
+    songList: [],
+    hasSearched: false,
+    isLoading: false,
+    showToast: false,
+    toastMsg: '',
+    hotTags: ['周杰伦', '林俊杰', '邓紫棋', '陈奕迅', '薛之谦', '许嵩']
+  },
+
+  onInputChange(e) {
+    this.keyword = e.value
+    if (this.keyword === '') {
+      this.hasSearched = false
+      this.songList = []
+    }
+  },
+
+  onSearch() {
+    if (!this.keyword.trim()) {
+      this.showToastMsg('请输入搜索关键词')
+      return
+    }
+    this.doSearch()
+  },
+
+  doSearch() {
+    this.isLoading = true
+    this.hasSearched = true
+    this.songList = []
+
+    searchSongs(this.keyword.trim(), 30).then(res => {
+      this.isLoading = false
+      if (res && res.result && res.result.songs) {
+        this.songList = res.result.songs.map(s => ({
+          id: s.id,
+          name: s.name,
+          artists: s.artists || s.ar,
+          album: s.album || s.al
+        }))
+      }
+    }).catch(err => {
+      this.isLoading = false
+      this.showToastMsg('搜索失败，请检查网络')
+    })
+  },
+
+  quickSearch(tag) {
+    this.keyword = tag
+    this.doSearch()
+  },
+
+  clearInput() {
+    this.keyword = ''
+    this.songList = []
+    this.hasSearched = false
+  },
+
+  getArtistText(song) {
+    const artists = song.artists || song.ar || []
+    if (Array.isArray(artists)) {
+      return artists.map(a => a.name).join(' / ')
+    }
+    return song.artist || ''
+  },
+
+  playSong(index) {
+    if (this.songList.length === 0) return
+    player.setPlaylist(this.songList, index)
+    player.playByIndex(index)
+    this.showToastMsg('开始播放')
+  },
+
+  playAll() {
+    if (this.songList.length === 0) return
+    player.setPlaylist(this.songList, 0)
+    player.playByIndex(0)
+    this.showToastMsg('播放全部')
+  },
+
+  addToPlaylist(index, e) {
+    if (e) {
+      e.stopPropagation()
+    }
+    const song = this.songList[index]
+    if (song) {
+      player.addToPlaylist(song)
+      this.showToastMsg('已添加到播放列表')
+    }
+  },
+
+  goBack() {
+    router.back()
+  },
+
+  showToastMsg(msg) {
+    this.toastMsg = msg
+    this.showToast = true
+    setTimeout(() => {
+      this.showToast = false
+    }, 1500)
+  }
+}
+</script>

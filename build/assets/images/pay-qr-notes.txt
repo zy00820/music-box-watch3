@@ -1,0 +1,3 @@
+支付二维码图片请手动放入：src/assets/images/pay-qr.jpg
+图片来源：用户聊天中提供的微信支付二维码
+文件路径：/workspace/music-box/src/assets/images/pay-qr.jpg

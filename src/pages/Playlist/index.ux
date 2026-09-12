@@ -1,0 +1,348 @@
+<template>
+  <div class="container">
+    <!-- 顶部栏 -->
+    <div class="header">
+      <div class="back-btn" onclick="goBack">
+        <text class="back-icon">‹</text>
+      </div>
+      <text class="header-title">播放列表</text>
+      <div class="header-right">
+        <text class="count-text">{{ playlist.length }}首</text>
+      </div>
+    </div>
+
+    <!-- 播放控制栏 -->
+    <div class="action-bar" if="{{ playlist.length > 0 }}">
+      <div class="action-btn" onclick="playAll">
+        <text class="action-icon">▶</text>
+        <text class="action-text">播放全部</text>
+      </div>
+      <div class="action-btn" onclick="clearAll">
+        <text class="action-icon">🗑</text>
+        <text class="action-text">清空</text>
+      </div>
+    </div>
+
+    <!-- 列表 -->
+    <div class="list-area" if="{{ playlist.length > 0 }}">
+      <list class="list-container">
+        <list-item type="song" for="{{ playlist }}" onclick="playItem($idx)">
+          <div class="song-item {{ $idx === currentIndex ? 'song-active' : '' }}">
+            <div class="song-index">
+              <text class="index-text">{{ $idx === currentIndex && isPlaying ? '♪' : ($idx + 1) }}</text>
+            </div>
+            <div class="song-detail">
+              <text class="song-name text-ellipsis {{ $idx === currentIndex ? 'name-active' : '' }}">{{ $item.name }}</text>
+              <text class="song-artist text-ellipsis">{{ getArtistText($item) }}</text>
+            </div>
+            <div class="song-del" onclick="removeItem($idx, $event)">
+              <text class="del-icon">✕</text>
+            </div>
+          </div>
+        </list-item>
+      </list>
+    </div>
+
+    <!-- 空状态 -->
+    <div class="empty-state" if="{{ playlist.length === 0 }}">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">播放列表为空</text>
+      <text class="empty-hint">去搜索添加喜欢的歌曲吧</text>
+      <div class="go-search-btn" onclick="goSearch">
+        <text class="go-search-text">去搜索</text>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" if="{{ showToast }}">
+      <text class="toast-text">{{ toastMsg }}</text>
+    </div>
+  </div>
+</template>
+
+<style>
+@import "../../assets/styles/common.css";
+
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #0a0a0f;
+  flex-direction: column;
+}
+
+.header {
+  width: 100%;
+  height: 48px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon {
+  font-size: 28px;
+  color: #ffffff;
+  font-weight: 300;
+}
+
+.header-title {
+  font-size: 17px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.count-text {
+  font-size: 13px;
+  color: #888888;
+}
+
+.action-bar {
+  width: 100%;
+  flex-direction: row;
+  height: 44px;
+  background-color: #12121a;
+}
+
+.action-btn {
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.action-text {
+  font-size: 13px;
+  color: #cccccc;
+}
+
+.list-area {
+  flex: 1;
+  width: 100%;
+}
+
+.list-container {
+  flex: 1;
+  width: 100%;
+}
+
+.song-item {
+  width: 100%;
+  height: 56px;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-bottom-width: 1px;
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.song-active {
+  background-color: rgba(255, 77, 111, 0.08);
+}
+
+.song-index {
+  width: 28px;
+  align-items: center;
+}
+
+.index-text {
+  font-size: 13px;
+  color: #666666;
+}
+
+.song-detail {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.song-name {
+  font-size: 14px;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.name-active {
+  color: #ff4d6f;
+}
+
+.song-artist {
+  font-size: 11px;
+  color: #888888;
+}
+
+.song-del {
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  align-items: center;
+  justify-content: center;
+}
+
+.del-icon {
+  font-size: 14px;
+  color: #666666;
+}
+
+.empty-state {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-text {
+  font-size: 15px;
+  color: #cccccc;
+  margin-bottom: 6px;
+}
+
+.empty-hint {
+  font-size: 12px;
+  color: #666666;
+  margin-bottom: 20px;
+}
+
+.go-search-btn {
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: #ff4d6f;
+  border-radius: 20px;
+}
+
+.go-search-text {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-radius: 16px;
+}
+
+.toast-text {
+  font-size: 13px;
+  color: #ffffff;
+}
+</style>
+
+<script>
+import player from '../../js/player.js'
+import router from '@blueos.app.appmanager.router'
+
+export default {
+  data: {
+    playlist: [],
+    currentIndex: -1,
+    isPlaying: false,
+    showToast: false,
+    toastMsg: ''
+  },
+
+  onShow() {
+    this.refreshList()
+    player.on('playlistChange', this.refreshList.bind(this))
+    player.on('songChange', this.refreshList.bind(this))
+    player.on('play', this.onPlayStateChange.bind(this))
+    player.on('pause', this.onPlayStateChange.bind(this))
+  },
+
+  onHide() {
+    player.off('playlistChange', this.refreshList.bind(this))
+    player.off('songChange', this.refreshList.bind(this))
+    player.off('play', this.onPlayStateChange.bind(this))
+    player.off('pause', this.onPlayStateChange.bind(this))
+  },
+
+  refreshList() {
+    this.playlist = player.playlist
+    this.currentIndex = player.currentIndex
+    this.isPlaying = player.isPlaying
+  },
+
+  onPlayStateChange() {
+    this.isPlaying = player.isPlaying
+  },
+
+  getArtistText(song) {
+    const artists = song.artists || song.ar || []
+    if (Array.isArray(artists)) {
+      return artists.map(a => a.name).join(' / ')
+    }
+    return song.artist || ''
+  },
+
+  playItem(index) {
+    player.playByIndex(index)
+  },
+
+  playAll() {
+    if (player.playlist.length > 0) {
+      player.playByIndex(0)
+    }
+  },
+
+  removeItem(index, e) {
+    if (e) {
+      e.stopPropagation()
+    }
+    player.removeFromPlaylist(index)
+    this.refreshList()
+    this.showToastMsg('已移除')
+  },
+
+  clearAll() {
+    player.setPlaylist([], -1)
+    player.stop()
+    this.refreshList()
+    this.showToastMsg('已清空播放列表')
+  },
+
+  goSearch() {
+    router.push({ uri: '/Search' })
+  },
+
+  goBack() {
+    router.back()
+  },
+
+  showToastMsg(msg) {
+    this.toastMsg = msg
+    this.showToast = true
+    setTimeout(() => {
+      this.showToast = false
+    }, 1500)
+  }
+}
+</script>

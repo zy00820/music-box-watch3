@@ -1,0 +1,13 @@
+/**
+ * 全能音乐盒 - 全局应用入口
+ * 适配 iQOO Watch GT 2 (BlueOS 3.0)
+ * 屏幕分辨率: 432 x 514
+ */
+export default {
+  onCreate() {
+    console.info('音乐盒应用启动')
+  },
+  onDestroy() {
+    console.info('音乐盒应用退出')
+  }
+}

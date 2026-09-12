@@ -1,0 +1,307 @@
+<template>
+  <div class="container">
+    <!-- 顶部栏 -->
+    <div class="header">
+      <div class="back-btn" onclick="goBack">
+        <text class="back-icon">‹</text>
+      </div>
+      <div class="header-info">
+        <text class="song-name text-ellipsis">{{ songName }}</text>
+        <text class="song-artist">{{ songArtist }}</text>
+      </div>
+      <div class="header-right"></div>
+    </div>
+
+    <!-- 歌词区域 -->
+    <div class="lyric-area" if="{{ lyricList.length > 0 }}">
+      <scroller class="lyric-scroll" scroll-y="true" scrolltop="{{ scrollTop }}">
+        <div class="lyric-padding-top"></div>
+        <div
+          class="lyric-line {{ $idx === activeLyricIndex ? 'lyric-active' : '' }}"
+          for="{{ lyricList }}"
+        >
+          <text class="lyric-text">{{ $item.text }}</text>
+        </div>
+        <div class="lyric-padding-bottom"></div>
+      </scroller>
+    </div>
+
+    <!-- 空状态 -->
+    <div class="empty-state" if="{{ lyricList.length === 0 }}">
+      <text class="empty-icon">📝</text>
+      <text class="empty-text">暂无歌词</text>
+    </div>
+
+    <!-- 迷你播放控制 -->
+    <div class="mini-controls" if="{{ songName !== '未播放' }}">
+      <div class="mini-btn" onclick="goPrev">
+        <text class="mini-icon">⏮</text>
+      </div>
+      <div class="mini-play" onclick="togglePlay">
+        <text class="mini-play-icon">{{ isPlaying ? '⏸' : '▶' }}</text>
+      </div>
+      <div class="mini-btn" onclick="goNext">
+        <text class="mini-icon">⏭</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+@import "../../assets/styles/common.css";
+
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #0a0a0f;
+  flex-direction: column;
+}
+
+.header {
+  width: 100%;
+  height: 52px;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon {
+  font-size: 28px;
+  color: #ffffff;
+  font-weight: 300;
+}
+
+.header-info {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 4px;
+}
+
+.song-name {
+  font-size: 15px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.song-artist {
+  font-size: 11px;
+  color: #888888;
+  margin-top: 2px;
+}
+
+.header-right {
+  width: 40px;
+}
+
+/* 歌词区域 */
+.lyric-area {
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+}
+
+.lyric-scroll {
+  width: 100%;
+  height: 100%;
+}
+
+.lyric-padding-top {
+  height: 180px;
+}
+
+.lyric-padding-bottom {
+  height: 200px;
+}
+
+.lyric-line {
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.lyric-text {
+  font-size: 14px;
+  color: #666666;
+  text-align: center;
+}
+
+.lyric-active .lyric-text {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.empty-state {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #666666;
+}
+
+/* 迷你控制 */
+.mini-controls {
+  width: 100%;
+  height: 64px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-top-width: 1px;
+  border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+.mini-btn {
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 24px;
+  margin-right: 24px;
+}
+
+.mini-icon {
+  font-size: 22px;
+  color: #ffffff;
+}
+
+.mini-play {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background-color: #ff4d6f;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-play-icon {
+  font-size: 22px;
+  color: #ffffff;
+}
+</style>
+
+<script>
+import player from '../../js/player.js'
+import router from '@blueos.app.appmanager.router'
+
+export default {
+  data: {
+    songName: '未播放',
+    songArtist: '',
+    lyricList: [],
+    activeLyricIndex: 0,
+    scrollTop: 0,
+    isPlaying: false
+  },
+
+  onShow() {
+    this.syncCurrentSong()
+    this.bindEvents()
+  },
+
+  onHide() {
+    this.unbindEvents()
+  },
+
+  bindEvents() {
+    player.on('songChange', this.onSongChange.bind(this))
+    player.on('lyricChange', this.onLyricChange.bind(this))
+    player.on('progress', this.onProgress.bind(this))
+    player.on('play', this.onPlayChange.bind(this))
+    player.on('pause', this.onPlayChange.bind(this))
+  },
+
+  unbindEvents() {
+    player.off('songChange', this.onSongChange.bind(this))
+    player.off('lyricChange', this.onLyricChange.bind(this))
+    player.off('progress', this.onProgress.bind(this))
+    player.off('play', this.onPlayChange.bind(this))
+    player.off('pause', this.onPlayChange.bind(this))
+  },
+
+  syncCurrentSong() {
+    if (player.currentSong) {
+      this.onSongChange(player.currentSong)
+    }
+    this.lyricList = player.currentLyric
+    this.isPlaying = player.isPlaying
+  },
+
+  onSongChange(song) {
+    this.songName = song.name || '未知歌曲'
+    const artists = song.artists || song.ar || []
+    if (Array.isArray(artists)) {
+      this.songArtist = artists.map(a => a.name).join(' / ')
+    } else {
+      this.songArtist = song.artist || ''
+    }
+  },
+
+  onLyricChange(lyric) {
+    this.lyricList = lyric
+    this.activeLyricIndex = 0
+    this.scrollTop = 0
+  },
+
+  onProgress(data) {
+    if (this.lyricList.length === 0) return
+    const currentTime = data.currentTime
+    // 查找当前时间对应的歌词行
+    let idx = 0
+    for (let i = 0; i < this.lyricList.length; i++) {
+      if (this.lyricList[i].time <= currentTime) {
+        idx = i
+      } else {
+        break
+      }
+    }
+    if (idx !== this.activeLyricIndex) {
+      this.activeLyricIndex = idx
+      // 滚动到当前行（每行约34px）
+      this.scrollTop = idx * 34
+    }
+  },
+
+  onPlayChange() {
+    this.isPlaying = player.isPlaying
+  },
+
+  togglePlay() {
+    player.togglePlay()
+  },
+
+  goPrev() {
+    player.prev()
+  },
+
+  goNext() {
+    player.next()
+  },
+
+  goBack() {
+    router.back()
+  }
+}
+</script>

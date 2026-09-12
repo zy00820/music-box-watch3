@@ -1,0 +1,1 @@
+!function(){var p=function(){return $app_define$("@app-application/app",[],function(p,a,n){}),void $app_bootstrap$("@app-application/app",{packagerVersion:"2.1.1"})};if("undefined"==typeof window)return p();window.createAppHandler=p,global.manifest=void 0}();

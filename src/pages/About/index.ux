@@ -1,0 +1,295 @@
+<template>
+  <div class="container">
+    <!-- 顶部 -->
+    <div class="header">
+      <div class="back-btn" onclick="goBack">
+        <text class="back-icon">‹</text>
+      </div>
+      <text class="header-title">关于</text>
+      <div class="placeholder"></div>
+    </div>
+
+    <!-- Logo + 应用名 -->
+    <div class="app-intro">
+      <image class="app-icon" src="/assets/images/icon.jpg" if="{{ showIcon }}" />
+      <div class="app-icon-fallback" if="{{ !showIcon }}">
+        <text class="fallback-icon">♪</text>
+      </div>
+      <text class="app-name">音乐盒</text>
+      <text class="app-version">v{{ version }}</text>
+    </div>
+
+    <!-- 分隔线 -->
+    <div class="divider"></div>
+
+    <!-- 开发者信息 -->
+    <div class="info-list">
+      <div class="info-item">
+        <text class="info-label">开发者</text>
+        <text class="info-value">张岳</text>
+      </div>
+      <div class="info-item">
+        <text class="info-label">开发团队</text>
+        <text class="info-value">小默软件工作室</text>
+      </div>
+      <div class="info-item" onclick="copyEmail">
+        <text class="info-label">联系方式</text>
+        <text class="info-value value-link">zy291817@outlook.com</text>
+      </div>
+      <div class="info-item" onclick="copyGroup">
+        <text class="info-label">交流群</text>
+        <text class="info-value value-link">586352356</text>
+      </div>
+    </div>
+
+    <!-- 分隔线 -->
+    <div class="divider"></div>
+
+    <!-- 激活状态 -->
+    <div class="license-block">
+      <text class="license-label">授权状态</text>
+      <text class="license-value {{ activated ? 'licensed' : 'trial' }}">
+        {{ activated ? '✓ 已激活' : '未激活' }}
+      </text>
+    </div>
+
+    <!-- 版本信息 -->
+    <div class="footer">
+      <text class="footer-text">© 小默软件工作室 · 仅供学习交流</text>
+    </div>
+
+    <div class="toast" if="{{ showToast }}">
+      <text class="toast-text">{{ toastMsg }}</text>
+    </div>
+  </div>
+</template>
+
+<style>
+@import "../../assets/styles/common.css";
+
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #0a0a0f;
+  flex-direction: column;
+}
+
+.header {
+  width: 100%;
+  height: 42px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon {
+  font-size: 28px;
+  color: #ffffff;
+  font-weight: 300;
+}
+
+.header-title {
+  font-size: 15px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.placeholder {
+  width: 40px;
+}
+
+/* 应用介绍 */
+.app-intro {
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.app-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+.app-icon-fallback {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background-color: #1a1a24;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.fallback-icon {
+  font-size: 40px;
+  color: #ff4d6f;
+}
+
+.app-name {
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.app-version {
+  font-size: 12px;
+  color: #666666;
+}
+
+/* 分隔线 */
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.06);
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+/* 信息列表 */
+.info-list {
+  width: 100%;
+  flex-direction: column;
+}
+
+.info-item {
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.info-label {
+  font-size: 13px;
+  color: #888888;
+}
+
+.info-value {
+  font-size: 13px;
+  color: #cccccc;
+  text-align: right;
+}
+
+.value-link {
+  color: #ff4d6f;
+}
+
+/* 授权状态 */
+.license-block {
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  padding-bottom: 4px;
+}
+
+.license-label {
+  font-size: 13px;
+  color: #888888;
+}
+
+.license-value {
+  font-size: 13px;
+}
+
+.licensed {
+  color: #4caf50;
+}
+
+.trial {
+  color: #ff4d6f;
+}
+
+/* 底部 */
+.footer {
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+}
+
+.footer-text {
+  font-size: 11px;
+  color: #555555;
+  text-align: center;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.85);
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-radius: 14px;
+}
+
+.toast-text {
+  font-size: 12px;
+  color: #ffffff;
+}
+</style>
+
+<script>
+import auth from '../../js/auth.js'
+import router from '@blueos.app.appmanager.router'
+
+export default {
+  data: {
+    showIcon: false,
+    version: '1.0.0',
+    activated: false,
+    showToast: false,
+    toastMsg: ''
+  },
+
+  onInit() {
+    this.activated = auth.isActivated()
+    try {
+      const manifest = require('../../manifest.json')
+      this.version = manifest.versionName || '1.0.0'
+      this.showIcon = true
+    } catch (e) {}
+  },
+
+  onShow() {
+    this.activated = auth.isActivated()
+  },
+
+  copyEmail() {
+    this.showToastMsg('邮箱：zy291817@outlook.com')
+  },
+
+  copyGroup() {
+    this.showToastMsg('QQ群：586352356')
+  },
+
+  goBack() {
+    router.back()
+  },
+
+  showToastMsg(msg) {
+    this.toastMsg = msg
+    this.showToast = true
+    setTimeout(() => { this.showToast = false }, 2000)
+  }
+}
+</script>

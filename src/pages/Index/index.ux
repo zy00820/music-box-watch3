@@ -66,9 +66,9 @@
         <text class="nav-icon">📝</text>
         <text class="nav-label">歌词</text>
       </div>
-      <div class="nav-item" onclick="loadHotSongs">
-        <text class="nav-icon">🔥</text>
-        <text class="nav-label">热门</text>
+      <div class="nav-item" onclick="goAbout">
+        <text class="nav-icon">ℹ</text>
+        <text class="nav-label">关于</text>
       </div>
     </div>
 

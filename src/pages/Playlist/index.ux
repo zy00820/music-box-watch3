@@ -239,10 +239,12 @@
 }
 
 .toast {
-  position: fixed;
+  position: absolute;
   bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  align-items: center;
+  justify-content: center;
   background-color: rgba(0, 0, 0, 0.8);
   padding-left: 16px;
   padding-right: 16px;

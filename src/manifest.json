@@ -2,8 +2,8 @@
   "package": "com.musicbox.watch3",
   "name": "音乐盒W3",
   "icon": "/assets/images/icon.jpg",
-  "versionName": "1.4.0",
-  "versionCode": 5,
+  "versionName": "1.5.0",
+  "versionCode": 7,
   "config": {
     "designWidth": 466
   },
@@ -26,24 +26,24 @@
   ],
   "permissions": [],
   "router": {
-    "entry": "pages/Activate",
+    "entry": "Activate",
     "pages": {
-      "pages/Activate": {
+      "Activate": {
         "component": "index"
       },
-      "pages/Index": {
+      "Index": {
         "component": "index"
       },
-      "pages/Search": {
+      "Search": {
         "component": "index"
       },
-      "pages/Playlist": {
+      "Playlist": {
         "component": "index"
       },
-      "pages/Lyric": {
+      "Lyric": {
         "component": "index"
       },
-      "pages/About": {
+      "About": {
         "component": "index"
       }
     }

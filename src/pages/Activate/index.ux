@@ -131,7 +131,7 @@
 .success-icon {
   font-size: 64px;
   color: #4caf50;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .success-title {
@@ -145,7 +145,7 @@
   font-size: 13px;
   color: #888888;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .enter-btn {
@@ -174,7 +174,7 @@
 
 .form-section {
   flex-direction: column;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 
 .section-label {
@@ -188,9 +188,9 @@
   height: 44px;
   background-color: #1a1a24;
   border-radius: 8px;
-  padding-left: 12px;
-  padding-right: 12px;
-  margin-bottom: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
+  margin-bottom: 12px;
 }
 
 .code-input {
@@ -231,8 +231,8 @@
   flex-direction: column;
   background-color: #12121a;
   border-radius: 12px;
-  padding-left: 12px;
-  padding-right: 12px;
+  padding-left: 14px;
+  padding-right: 14px;
   padding-top: 12px;
   padding-bottom: 12px;
 }
@@ -253,8 +253,8 @@
 }
 
 .pay-qr-wrap {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   align-items: center;
   justify-content: center;
   align-self: center;
@@ -265,13 +265,13 @@
 }
 
 .pay-qr {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
 }
 
 .pay-qr-placeholder {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   align-items: center;
   justify-content: center;
 }
@@ -403,7 +403,7 @@ export default {
   },
 
   enterApp() {
-    router.replace({ uri: '/pages/Index' })
+    router.replace({ uri: 'Index' })
   },
 
   showToastMsg(msg) {

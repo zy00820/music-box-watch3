@@ -330,7 +330,7 @@ export default {
   },
 
   goSearch() {
-    router.push({ uri: 'pages/Search' })
+    router.push({ uri: '/pages/Search' })
   },
 
   goBack() {

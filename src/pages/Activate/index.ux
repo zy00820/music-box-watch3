@@ -401,7 +401,7 @@ export default {
   },
 
   enterApp() {
-    router.replace({ uri: '/pages/Index' })
+    router.replace({ uri: 'pages/Index' })
   },
 
   showToastMsg(msg) {

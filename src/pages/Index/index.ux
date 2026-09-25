@@ -357,7 +357,7 @@ export default {
   onInit() {
     auth.initAuth()
     if (!auth.isActivated()) {
-      router.replace({ uri: '/pages/Activate' })
+      router.replace({ uri: 'pages/Activate' })
       return
     }
     this.bindPlayerEvents()
@@ -502,21 +502,21 @@ export default {
    * 跳转搜索页
    */
   goSearch() {
-    router.push({ uri: '/Search' })
+    router.push({ uri: 'pages/Search' })
   },
 
   /**
    * 跳转播放列表页
    */
   goPlaylist() {
-    router.push({ uri: '/Playlist' })
+    router.push({ uri: 'pages/Playlist' })
   },
 
   /**
    * 跳转歌词页
    */
   goLyric() {
-    router.push({ uri: '/Lyric' })
+    router.push({ uri: 'pages/Lyric' })
   },
 
   /**
